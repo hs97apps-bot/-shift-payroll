@@ -26,7 +26,87 @@ input[type=time],input[type=date],input[type=month]{min-width:0;width:100%;box-s
 .mobile-bottom-nav button span{font-size:20px;line-height:20px}.mobile-bottom-nav button.active{color:#1267d6}
 #basicshift .top select{width:100%!important}#saveBaseShift,#goShiftAfterBase{width:100%!important;flex-basis:100%!important}
 }
-</style></head><body><div class='app'><aside class='side'><div class='brand'>▣ シフト＆給与管理</div><div class='nav'><button data-page='dash'>ダッシュボード</button><button data-page='employees'>従業員管理</button><button data-page='basicshift'>基本シフト設定</button><button data-page='shifts'>シフト管理</button><button class='active' data-page='daily'>日別勤務</button><button data-page='payroll'>給与集計</button></div></aside><main class='main'>
+</style>
+<style id="iphone-v12-fix">
+@media (max-width:700px){
+  *{box-sizing:border-box}
+  html,body{width:100%!important;max-width:100%!important;margin:0!important;overflow-x:hidden!important}
+  body{min-width:0!important}
+  .app,.layout,.shell,.main,.content,.app-main,main,.page,section{
+    width:100%!important;max-width:100%!important;min-width:0!important;
+    margin-left:0!important;margin-right:0!important
+  }
+  main,.main,.content,.app-main{padding:12px!important}
+  .page{padding-left:0!important;padding-right:0!important}
+  .card{width:100%!important;max-width:100%!important;min-width:0!important;overflow:hidden}
+  .top,.toolbar,.formgrid,.grid4,.grid3,.grid2{width:100%!important;max-width:100%!important;min-width:0!important}
+  .top>*{max-width:100%!important}
+  h1{margin-top:0!important}
+  input,select,textarea,button,.btn{max-width:100%!important}
+
+  /* Remove the forced desktop-width tables that caused the whole page to stretch. */
+  #daily .tablewrap,#employees .tablewrap,#payroll .tablewrap{
+    width:100%!important;max-width:100%!important;overflow-x:auto!important
+  }
+  #daily .tablewrap table,#employees .tablewrap table,#payroll .tablewrap table{
+    min-width:0!important
+  }
+
+  /* Daily work becomes employee cards on iPhone instead of a 720px table. */
+  #daily .tablewrap{overflow:visible!important}
+  #daily table,#daily thead,#daily tbody,#daily tr,#daily th,#daily td{
+    display:block!important;width:100%!important;max-width:100%!important
+  }
+  #daily thead{display:none!important}
+  #daily tbody tr{
+    border:1px solid #dfe6ef!important;border-radius:14px!important;
+    padding:12px!important;margin:0 0 12px!important;background:#fff!important
+  }
+  #daily tbody tr:empty{display:none!important}
+  #daily td{
+    border:0!important;padding:7px 0!important;white-space:normal!important;
+    overflow-wrap:anywhere!important
+  }
+  #daily td::before{
+    display:block;font-size:12px;font-weight:700;color:#718096;margin-bottom:4px
+  }
+  #daily td:nth-child(1)::before{content:"従業員"}
+  #daily td:nth-child(2)::before{content:"出勤"}
+  #daily td:nth-child(3)::before{content:"退勤"}
+  #daily td:nth-child(4)::before{content:"休憩①"}
+  #daily td:nth-child(5)::before{content:"休憩②"}
+  #daily td:nth-child(6)::before{content:"休憩計"}
+  #daily td:nth-child(7)::before{content:"実働"}
+  #daily td:nth-child(8)::before{content:"日給"}
+  #daily td:nth-child(9)::before{content:"交通費"}
+  #daily td:nth-child(10)::before{content:"操作"}
+  #daily td input,#daily td select,#daily td button{width:100%!important}
+
+  /* Employee list: keep form comfortable and contain any wide listing locally. */
+  #employees .tablewrap{overflow-x:auto!important;-webkit-overflow-scrolling:touch}
+  #employees .tablewrap table{width:100%!important}
+
+  /* Payroll may have many columns: horizontal scroll only inside its card. */
+  #payroll .tablewrap{overflow-x:auto!important;-webkit-overflow-scrolling:touch}
+  #payroll .tablewrap table{min-width:760px!important}
+
+  /* Calendar: fit all seven days into the viewport. */
+  #calendar,.calendar{width:100%!important;max-width:100%!important;min-width:0!important}
+  .calendar{grid-template-columns:repeat(7,minmax(0,1fr))!important;gap:3px!important}
+  .calendar>*{min-width:0!important;max-width:100%!important;overflow:hidden!important}
+  .calendar .day,.calendar [class*=day]{
+    min-height:64px!important;padding:4px!important;font-size:10px!important
+  }
+
+  /* Date + add button wrap cleanly rather than widening the page. */
+  #daily .top .toolbar,#daily .toolbar{display:flex!important;flex-wrap:wrap!important}
+  #daily input[type=date]{flex:1 1 150px!important;width:auto!important}
+  #daily .btn{flex:1 1 150px!important}
+
+  .mobile-bottom-nav{width:100vw!important;max-width:100vw!important}
+}
+</style>
+</head><body><div class='app'><aside class='side'><div class='brand'>▣ シフト＆給与管理</div><div class='nav'><button data-page='dash'>ダッシュボード</button><button data-page='employees'>従業員管理</button><button data-page='basicshift'>基本シフト設定</button><button data-page='shifts'>シフト管理</button><button class='active' data-page='daily'>日別勤務</button><button data-page='payroll'>給与集計</button></div></aside><main class='main'>
 <section id='daily' class='page active'><div class='top'><h1>日別勤務</h1><div class='toolbar'><div class='toolbar'><input id='workDate' type='date' class='btn'><strong id='workWeekday'></strong></div><button class='btn primary' id='addRow'>＋ 従業員を追加</button></div></div><div class='grid4 card'><div class='metric'><span class='muted'>出勤人数</span><b id='mPeople'>0人</b></div><div class='metric'><span class='muted'>総実働</span><b id='mHours'>0:00</b></div><div class='metric'><span class='muted'>日給合計</span><b id='mPay'>¥0</b></div><div class='metric'><span class='muted'>交通費合計</span><b id='mTrans'>¥0</b></div></div><div class='card'><div class='toolbar' style='justify-content:space-between;margin-bottom:10px'><h2 style='margin:0;font-size:18px'>勤務一覧</h2><span class='muted'>休憩開始・終了から休憩時間／実働／日給を自動計算</span></div><div class='tablewrap'><table><thead><tr><th>従業員</th><th>出勤</th><th>退勤</th><th>休憩①</th><th>休憩②</th><th>休憩計</th><th>実働</th><th>時給</th><th>日給</th><th>交通費</th><th></th></tr></thead><tbody id='dailyRows'></tbody></table></div><div class='summary'><span>実働 <span id='sHours'>0:00</span></span><span>支給合計 <span class='green' id='sTotal'>¥0</span></span></div></div></section>
 <section id='employees' class='page'><div class='top'><h1>従業員管理</h1><button class='btn primary' id='newEmp'>＋ 新規登録</button></div><div class='card'><div class='formgrid'><div class='field'><label>氏名</label><input id='empName'></div><div class='field'><label>時給</label><input id='empRate' type='number'></div><div class='field'><label>交通費／日</label><input id='empTrans' type='number'></div><div class='field'><label>扶養親族等の数（必須）</label><input id='empDeps' type='number' min='0' value='0' required></div><div class='field'><label>税区分（必須）</label><select id='empTaxClass'><option value='A'>甲欄</option><option value='B'>乙欄</option></select></div></div><div class='toolbar' style='margin-top:12px'><button class='btn primary' id='saveEmp'>保存</button></div></div><div class='card' style='border:2px solid #cfe2ff;background:#f8fbff'><div class='top' style='margin:0'><div><h2 style='margin:0 0 5px;font-size:18px'>基本シフトを設定</h2><div class='muted'>曜日ごとの勤務・出勤・退勤・休憩時間を登録できます。</div></div><button class='btn primary' id='openBasicShift'>基本シフト設定を開く →</button></div></div><div class='card tablewrap'><table style='min-width:700px'><thead><tr><th>氏名</th><th>時給</th><th>交通費/日</th><th>扶養親族等</th><th>税区分</th><th>状態</th><th></th></tr></thead><tbody id='empRows'></tbody></table></div></section>
 <section id='basicshift' class='page'>
