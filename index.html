@@ -169,6 +169,43 @@ input[type=time],input[type=date],input[type=month]{min-width:0;width:100%;box-s
   #basicshift .toolbar .btn{width:100%!important}
 }
 </style>
+
+<style id="v15-real-weekgrid-mobile">
+@media(max-width:700px){
+ #basicshift .tablewrap,#baseShiftGrid{overflow:visible!important;width:100%!important;max-width:100%!important}
+ #baseShiftGrid .weekgrid{
+   display:grid!important;
+   grid-template-columns:92px minmax(0,1fr)!important;
+   width:100%!important;max-width:100%!important;min-width:0!important;
+   gap:0!important;overflow:visible!important;
+ }
+ #baseShiftGrid .weekhead{display:none!important}
+ #baseShiftGrid .weekgrid>b{
+   grid-column:1/-1!important;
+   display:block!important;width:100%!important;
+   font-size:20px!important;padding:14px 4px 8px!important;
+   margin-top:10px!important;border-top:1px solid #e7edf4!important;
+ }
+ #baseShiftGrid .weekgrid>b:first-of-type{margin-top:0!important;border-top:0!important}
+ #baseShiftGrid .weekgrid>b::before{content:"";}
+
+ #baseShiftGrid .weekgrid>select,
+ #baseShiftGrid .weekgrid>input{
+   grid-column:2!important;width:100%!important;max-width:100%!important;min-width:0!important;
+   height:48px!important;margin:4px 0!important;font-size:16px!important;
+ }
+ #baseShiftGrid .weekgrid>select::before,
+ #baseShiftGrid .weekgrid>input::before{display:none!important}
+
+ /* Labels are inserted by JS as separate elements so every field is unmistakable. */
+ #baseShiftGrid .mobile-field-label{
+   grid-column:1!important;align-self:center!important;
+   font-size:12px!important;font-weight:700!important;color:#65758b!important;
+   padding-right:8px!important;
+ }
+ #basicshift .card{overflow:visible!important}
+}
+</style>
 </head><body><div class='app'><aside class='side'><div class='brand'>▣ シフト＆給与管理</div><div class='nav'><button data-page='dashboard'>ホーム</button><button data-page='dash'>ダッシュボード</button><button data-page='employees'>従業員管理</button><button data-page='basicshift'>基本シフト設定</button><button data-page='shifts'>シフト管理</button><button class='active' data-page='daily'>日別勤務</button><button data-page='payroll'>給与集計</button></div></aside><main class='main'>
 
 <section id="dashboard" class="page">
@@ -346,6 +383,30 @@ if ('serviceWorker' in navigator && (location.protocol === 'https:' || location.
   document.addEventListener('change',()=>setTimeout(renderDashboard,50));
   document.addEventListener('click',()=>setTimeout(renderDashboard,80));
   setTimeout(function(){openPage('dashboard');renderDashboard();const home=document.querySelector('[data-mobile-page="dashboard"]');if(home)home.classList.add('active')},120);
+})();
+</script>
+
+<script id="v15-basicshift-labels">
+(function(){
+ const labels={on:'勤務',start:'出勤',end:'退勤',b1s:'休憩① 開始',b1e:'休憩① 終了',b2s:'休憩② 開始',b2e:'休憩② 終了'};
+ function mobileLabels(){
+   if(!window.matchMedia('(max-width:700px)').matches)return;
+   const grid=document.querySelector('#baseShiftGrid .weekgrid'); if(!grid)return;
+   grid.querySelectorAll('.mobile-field-label').forEach(x=>x.remove());
+   grid.querySelectorAll('[data-d][data-k]').forEach(el=>{
+     const lab=document.createElement('div');
+     lab.className='mobile-field-label';
+     lab.textContent=labels[el.dataset.k]||el.dataset.k;
+     grid.insertBefore(lab,el);
+   });
+ }
+ const old=window.renderBaseShift;
+ if(typeof old==='function'){
+   window.renderBaseShift=function(){old.apply(this,arguments);setTimeout(mobileLabels,0)}
+ }
+ document.addEventListener('change',e=>{if(e.target&&e.target.id==='baseEmp')setTimeout(mobileLabels,0)});
+ window.addEventListener('resize',()=>setTimeout(mobileLabels,50));
+ setTimeout(mobileLabels,200);
 })();
 </script>
 </body></html>
