@@ -17,13 +17,13 @@ jobs:
           p=Path('index.html')
           s=p.read_text()
           marker='final-iphone-basicshift-v23'
-          css='''<style id="final-iphone-basicshift-v23">@media(max-width:700px){#baseShiftGrid .v18-row{display:grid!important;grid-template-columns:1fr!important;gap:10px!important}#baseShiftGrid .v18-break{display:grid!important;grid-template-columns:1fr 34px!important;gap:8px!important;align-items:end!important}#baseShiftGrid .v18-break .sep{display:none!important}#baseShiftGrid .v18-break .v18-field{grid-column:1!important;width:100%!important;min-width:0!important}#baseShiftGrid .v18-break .v18-delete{grid-column:2!important;grid-row:2!important;width:34px!important;min-width:34px!important;height:46px!important;padding:0!important}#baseShiftGrid .v18-field input[type=time]{display:block!important;width:100%!important;min-width:0!important;max-width:100%!important;height:46px!important;padding:0 8px!important;box-sizing:border-box!important;font-size:16px!important}#baseShiftGrid .v18-work{width:100%!important;max-width:100%!important;overflow:hidden!important}#baseShiftGrid .v18-works{width:100%!important;min-width:0!important;max-width:100%!important}#baseShiftGrid .v18-addwork{width:100%!important;max-width:100%!important}}</style>'''
-          if marker not in s:
-              s=s.replace('</body>',css+'</body>',1)
-          else:
-              a=s.index('<style id="'+marker+'">')
-              b=s.index('</style>',a)+8
+          css='''<style id="final-iphone-basicshift-v23">@media(max-width:700px){#baseShiftGrid .v18-row{display:grid!important;grid-template-columns:minmax(0,1fr) minmax(0,1fr)!important;gap:8px!important;width:100%!important}#baseShiftGrid .v18-break{display:grid!important;grid-template-columns:minmax(0,1fr) minmax(0,1fr) 30px!important;gap:6px!important;align-items:end!important;width:100%!important}#baseShiftGrid .v18-break .sep{display:none!important}#baseShiftGrid .v18-break .v18-field{grid-column:auto!important;grid-row:auto!important;width:100%!important;min-width:0!important}#baseShiftGrid .v18-break .v18-delete{grid-column:3!important;grid-row:1!important;width:30px!important;min-width:30px!important;max-width:30px!important;height:46px!important;padding:0!important}#baseShiftGrid .v18-field{min-width:0!important;max-width:100%!important}#baseShiftGrid .v18-field input[type=time]{display:block!important;width:100%!important;min-width:0!important;max-width:100%!important;height:46px!important;padding:0 4px!important;box-sizing:border-box!important;font-size:16px!important;text-align:center!important}#baseShiftGrid .v18-work{width:100%!important;max-width:100%!important;overflow:hidden!important;padding:11px!important}#baseShiftGrid .v18-addwork{width:100%!important;max-width:100%!important}}</style>'''
+          a=s.find('<style id="'+marker+'">')
+          if a>=0:
+              b=s.find('</style>',a)+8
               s=s[:a]+css+s[b:]
+          else:
+              s=s.replace('</body>',css+'</body>',1)
           p.write_text(s)
           PY
       - name: Commit
@@ -31,5 +31,5 @@ jobs:
           git config user.name 'github-actions[bot]'
           git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
           git add index.html
-          git diff --cached --quiet || git commit -m 'Force final iPhone basic shift layout'
+          git diff --cached --quiet || git commit -m 'Fix final iPhone shift grid to two columns'
           git push
