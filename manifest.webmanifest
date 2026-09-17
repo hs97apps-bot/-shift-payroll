@@ -1,0 +1,11 @@
+{
+  "name": "シフト＆給与管理",
+  "short_name": "シフト給与",
+  "lang": "ja",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#f4f7fb",
+  "theme_color": "#1473e6",
+  "description": "シフト・勤務実績・給与を管理するWebアプリ"
+}
