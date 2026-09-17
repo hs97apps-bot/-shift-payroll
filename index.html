@@ -308,6 +308,55 @@ input[type=time],input[type=date],input[type=month]{min-width:0;width:100%;box-s
  #basicshift .toolbar .btn{width:100%!important}
 }
 </style>
+
+<style id="v21-basicshift-clean-ui">
+@media(max-width:700px){
+ #basicshift{padding-bottom:110px!important}
+ #baseShiftGrid .v18-day{padding:16px 0!important}
+ #baseShiftGrid .v18-dayhead{
+   display:grid!important;grid-template-columns:1fr auto!important;
+   align-items:center!important;min-height:42px!important;margin-bottom:8px!important
+ }
+ #baseShiftGrid .v18-dayname{font-size:20px!important;line-height:1!important}
+ #baseShiftGrid .v18-off{
+   display:flex!important;align-items:center!important;gap:6px!important;
+   font-size:13px!important;white-space:nowrap!important
+ }
+ #baseShiftGrid .v18-off input{width:22px!important;height:22px!important;margin:0!important}
+ #baseShiftGrid .v18-work{
+   padding:12px!important;border-radius:14px!important;margin-top:10px!important;
+   background:#f7f9fc!important
+ }
+ #baseShiftGrid .v18-workhead{margin-bottom:10px!important}
+ #baseShiftGrid .v18-row{grid-template-columns:minmax(0,1fr) minmax(0,1fr)!important;gap:10px!important}
+ #baseShiftGrid .v18-field{min-width:0!important}
+ #baseShiftGrid .v18-field label{font-size:11px!important;margin:0 0 5px 2px!important}
+ #baseShiftGrid .v18-field input{
+   width:100%!important;max-width:100%!important;min-width:0!important;
+   box-sizing:border-box!important;height:46px!important;padding:0 8px!important;
+   font-size:16px!important;text-align:center!important
+ }
+ #baseShiftGrid .v18-break{
+   display:grid!important;
+   grid-template-columns:minmax(0,1fr) 16px minmax(0,1fr) 26px!important;
+   gap:5px!important;align-items:end!important;margin-top:10px!important;width:100%!important
+ }
+ #baseShiftGrid .v18-break .sep{
+   padding:0 0 13px!important;text-align:center!important;font-size:14px!important
+ }
+ #baseShiftGrid .v18-break .v18-delete{
+   width:26px!important;height:46px!important;padding:0!important;align-self:end!important;
+   display:flex!important;align-items:center!important;justify-content:center!important
+ }
+ #baseShiftGrid .v18-mini{
+   display:inline-flex!important;align-items:center!important;
+   min-height:38px!important;margin-top:7px!important;padding:5px 3px!important;font-size:14px!important
+ }
+ #baseShiftGrid .v18-addwork{
+   height:44px!important;margin-top:10px!important;padding:0 10px!important;font-size:14px!important
+ }
+}
+</style>
 </head><body><div class='app'><aside class='side'><div class='brand'>▣ シフト＆給与管理</div><div class='nav'><button data-page='dashboard'>ホーム</button><button data-page='dash'>ダッシュボード</button><button data-page='employees'>従業員管理</button><button data-page='basicshift'>基本シフト設定</button><button data-page='shifts'>シフト管理</button><button class='active' data-page='daily'>日別勤務</button><button data-page='payroll'>給与集計</button></div></aside><main class='main'>
 
 <section id="dashboard" class="page">
