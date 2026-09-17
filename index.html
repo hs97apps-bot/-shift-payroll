@@ -127,6 +127,48 @@ input[type=time],input[type=date],input[type=month]{min-width:0;width:100%;box-s
  .dash-actions .btn:last-child{grid-column:1/-1}
 }
 </style>
+
+<style id="v14-basicshift-mobile">
+@media(max-width:700px){
+  #basicshift .tablewrap{overflow:visible!important;width:100%!important;max-width:100%!important}
+  #baseShiftGrid{width:100%!important;max-width:100%!important;overflow:visible!important}
+  #baseShiftGrid table,#baseShiftGrid tbody,#baseShiftGrid tr,#baseShiftGrid td{
+    display:block!important;width:100%!important;max-width:100%!important;min-width:0!important
+  }
+  #baseShiftGrid thead{display:none!important}
+  #baseShiftGrid tr{
+    border:1px solid #dfe6ef!important;border-radius:14px!important;
+    padding:12px!important;margin:0 0 12px!important;background:#fff!important;
+    overflow:hidden!important
+  }
+  #baseShiftGrid td{
+    display:grid!important;grid-template-columns:92px minmax(0,1fr)!important;
+    align-items:center!important;gap:8px!important;border:0!important;padding:6px 0!important;
+    overflow:visible!important
+  }
+  #baseShiftGrid td:first-child{
+    display:block!important;font-size:20px!important;font-weight:800!important;
+    padding:2px 0 10px!important;border-bottom:1px solid #edf1f5!important;margin-bottom:5px!important
+  }
+  #baseShiftGrid td:not(:first-child)::before{
+    font-size:12px!important;font-weight:700!important;color:#6d7d91!important;line-height:1.2
+  }
+  #baseShiftGrid td:nth-child(2)::before{content:"勤務"}
+  #baseShiftGrid td:nth-child(3)::before{content:"出勤"}
+  #baseShiftGrid td:nth-child(4)::before{content:"退勤"}
+  #baseShiftGrid td:nth-child(5)::before{content:"休憩① 開始"}
+  #baseShiftGrid td:nth-child(6)::before{content:"休憩① 終了"}
+  #baseShiftGrid td:nth-child(7)::before{content:"休憩② 開始"}
+  #baseShiftGrid td:nth-child(8)::before{content:"休憩② 終了"}
+  #baseShiftGrid input,#baseShiftGrid select{
+    width:100%!important;max-width:100%!important;min-width:0!important;height:46px!important;
+    font-size:16px!important
+  }
+  #basicshift .card{overflow:visible!important}
+  #basicshift .toolbar{display:grid!important;grid-template-columns:1fr!important}
+  #basicshift .toolbar .btn{width:100%!important}
+}
+</style>
 </head><body><div class='app'><aside class='side'><div class='brand'>▣ シフト＆給与管理</div><div class='nav'><button data-page='dashboard'>ホーム</button><button data-page='dash'>ダッシュボード</button><button data-page='employees'>従業員管理</button><button data-page='basicshift'>基本シフト設定</button><button data-page='shifts'>シフト管理</button><button class='active' data-page='daily'>日別勤務</button><button data-page='payroll'>給与集計</button></div></aside><main class='main'>
 
 <section id="dashboard" class="page">
