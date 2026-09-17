@@ -1,4 +1,4 @@
-name: Apply mobile basic shift fix
+name: Apply night premium UI
 on:
   push:
     paths:
@@ -10,20 +10,41 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - name: Show and calculate night premium
+      - name: Add night premium display
         run: |
           python3 - <<'PY'
           from pathlib import Path
-          p=Path('index.html'); s=p.read_text()
-          block=r'''<style id="night-premium-v27-style">.night-val{font-weight:800;color:#1d4f91}.night-note{font-size:11px;color:#66758a}</style><script id="night-premium-v27">(()=>{const mm=t=>{if(!t)return null;let[a,b]=t.split(':').map(Number);return a*60+b},ov=(a,b,c,d)=>Math.max(0,Math.min(b,d)-Math.max(a,c));function brs(r){return [[r.b1s,r.b1e],[r.b2s,r.b2e]].filter(x=>x[0]&&x[1])}function nightMin(r){let a=mm(r.start),b=mm(r.end);if(a==null||b==null)return 0;if(b<=a)b+=1440;let n=ov(a,b,1320,1740)+ov(a,b,-120,300);for(const q of brs(r)){let x=mm(q[0]),y=mm(q[1]);if(y<=x)y+=1440;if(a>=1320&&x<a){x+=1440;y+=1440}n-=ov(x,y,1320,1740)+ov(x,y,-120,300)}return Math.max(0,n)}function prem(r){return Math.round((+r.rate||0)*.25*nightMin(r)/60)}function fmt(m){return Math.floor(m/60)+':'+String(m%60).padStart(2,'0')}window.nightMin=nightMin;window.nightPremium=prem;
-function daily(){document.querySelectorAll('#dailyRows tr').forEach((tr,i)=>{let r=(db.days[workDate.value]||[])[i];if(!r)return;let cells=tr.children;if(cells.length<11)return;let old=tr.querySelector('.night-daily');if(old)old.remove();let td=document.createElement('td');td.className='night-daily';td.innerHTML='<span class="night-val">'+fmt(nightMin(r))+'</span><div class="night-note">+'+yen(prem(r))+'</div>';tr.insertBefore(td,cells[cells.length-2]);});let hr=document.querySelector('#daily table thead tr');if(hr&&!hr.querySelector('.night-head')){let th=document.createElement('th');th.className='night-head';th.textContent='深夜時間 / 割増';hr.insertBefore(th,hr.children[hr.children.length-1])}}
-function payroll(){let month=payMonth&&payMonth.value;if(!month)return;document.querySelectorAll('#payRows tr').forEach(tr=>{let empName=tr.children[0]?.textContent;let e=db.employees.find(x=>x.name===empName);if(!e)return;let rows=[];Object.entries(db.days).forEach(([d,rs])=>{if(d.startsWith(month))rows.push(...rs.filter(r=>r.empId==e.id))});let nm=rows.reduce((s,r)=>s+nightMin(r),0),np=rows.reduce((s,r)=>s+prem(r),0);let old=tr.querySelector('.night-pay');if(old)old.remove();let td=document.createElement('td');td.className='night-pay';td.innerHTML='<span class="night-val">'+fmt(nm)+'</span><div class="night-note">'+yen(np)+'</div>';tr.insertBefore(td,tr.children[4])});let hr=document.querySelector('#payroll table thead tr');if(hr&&!hr.querySelector('.night-pay-head')){let th=document.createElement('th');th.className='night-pay-head';th.textContent='深夜時間 / 深夜割増';hr.insertBefore(th,hr.children[4])}}
-const rd=window.renderDaily;window.renderDaily=function(){let x=rd.apply(this,arguments);setTimeout(daily,0);return x};const rp=window.renderPayroll;if(typeof rp==='function')window.renderPayroll=function(){let x=rp.apply(this,arguments);setTimeout(payroll,0);return x};document.addEventListener('click',()=>setTimeout(()=>{daily();payroll()},50));setTimeout(()=>{daily();payroll()},500)})();</script>'''
-          for marker in ['night-premium-v27-style']:
-            a=s.find('<style id="'+marker+'">')
-            if a>=0:
-              b=s.find('</script>',a)+9; s=s[:a]+s[b:]
-          s=s.replace('</body>',block+'</body>',1)
+          p=Path("index.html")
+          s=p.read_text()
+          tag='<script id="night-premium-display-v28">'
+          js=r'''<script id="night-premium-display-v28">
+(function(){
+ function mm(t){if(!t)return null;var a=t.split(':');return (+a[0])*60+(+a[1])}
+ function ov(a,b,c,d){return Math.max(0,Math.min(b,d)-Math.max(a,c))}
+ function nm(r){var a=mm(r.start),b=mm(r.end);if(a==null||b==null)return 0;if(b<=a)b+=1440;var n=ov(a,b,1320,1740)+ov(a,b,-120,300);[[r.b1s,r.b1e],[r.b2s,r.b2e]].forEach(function(q){var x=mm(q[0]),y=mm(q[1]);if(x==null||y==null)return;if(y<=x)y+=1440;if(a>=1320&&x<a){x+=1440;y+=1440}n-=ov(x,y,1320,1740)+ov(x,y,-120,300)});return Math.max(0,n)}
+ function np(r){return Math.round((+r.rate||0)*0.25*nm(r)/60)}
+ function fh(m){return Math.floor(m/60)+':'+String(m%60).padStart(2,'0')}
+ function run(){
+  try{
+   var hr=document.querySelector('#daily table thead tr');
+   if(hr&&!hr.querySelector('.night28h')){var th=document.createElement('th');th.className='night28h';th.textContent='深夜時間 / 深夜割増';hr.insertBefore(th,hr.lastElementChild)}
+   document.querySelectorAll('#dailyRows tr').forEach(function(tr,i){var rs=(db.days[workDate.value]||[]),r=rs[i];if(!r)return;var old=tr.querySelector('.night28');if(old)old.remove();var td=document.createElement('td');td.className='calc night28';td.innerHTML=fh(nm(r))+'<div class="muted">'+yen(np(r))+'</div>';tr.insertBefore(td,tr.lastElementChild)})
+   var ph=document.querySelector('#payroll table thead tr');
+   if(ph&&!ph.querySelector('.night28ph')){var pth=document.createElement('th');pth.className='night28ph';pth.textContent='深夜時間 / 深夜割増';ph.insertBefore(pth,ph.children[4])}
+   var month=payMonth.value;
+   document.querySelectorAll('#payRows tr').forEach(function(tr){var name=tr.children[0]&&tr.children[0].textContent,e=db.employees.find(function(x){return x.name===name});if(!e)return;var rows=[];Object.keys(db.days).forEach(function(d){if(d.indexOf(month)===0)(db.days[d]||[]).forEach(function(r){if(r.empId==e.id)rows.push(r)})});var mins=rows.reduce(function(a,r){return a+nm(r)},0),amt=rows.reduce(function(a,r){return a+np(r)},0);var old=tr.querySelector('.night28p');if(old)old.remove();var td=document.createElement('td');td.className='calc night28p';td.innerHTML=fh(mins)+'<div class="muted">'+yen(amt)+'</div>';tr.insertBefore(td,tr.children[4])})
+  }catch(e){}
+ }
+ new MutationObserver(function(){run()}).observe(document.body,{childList:true,subtree:true});
+ document.addEventListener('change',function(){setTimeout(run,20)},true);
+ setTimeout(run,300);
+})();
+</script>'''
+          a=s.find(tag)
+          if a>=0:
+            b=s.find("</script>",a)
+            if b>=0:s=s[:a]+s[b+9:]
+          s=s.replace("</body>",js+"</body>",1)
           p.write_text(s)
           PY
       - name: Commit
@@ -31,5 +52,5 @@ const rd=window.renderDaily;window.renderDaily=function(){let x=rd.apply(this,ar
           git config user.name 'github-actions[bot]'
           git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
           git add index.html
-          git diff --cached --quiet || git commit -m 'Display night premium in daily and payroll views'
+          git diff --cached --quiet || git commit -m 'Fix visible night premium columns'
           git push
