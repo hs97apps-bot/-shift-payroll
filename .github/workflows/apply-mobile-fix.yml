@@ -10,21 +10,26 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - name: Link mobile fix stylesheet
+      - name: Apply final iPhone override
         run: |
           python3 - <<'PY'
           from pathlib import Path
           p=Path('index.html')
           s=p.read_text()
-          tag='<link rel="stylesheet" href="mobile-basicshift-fix.css?v=1">'
-          if tag not in s:
-              s=s.replace('</head>',tag+'</head>',1)
-              p.write_text(s)
+          marker='final-iphone-basicshift-v23'
+          css='''<style id="final-iphone-basicshift-v23">@media(max-width:700px){#baseShiftGrid .v18-row{display:grid!important;grid-template-columns:1fr!important;gap:10px!important}#baseShiftGrid .v18-break{display:grid!important;grid-template-columns:1fr 34px!important;gap:8px!important;align-items:end!important}#baseShiftGrid .v18-break .sep{display:none!important}#baseShiftGrid .v18-break .v18-field{grid-column:1!important;width:100%!important;min-width:0!important}#baseShiftGrid .v18-break .v18-delete{grid-column:2!important;grid-row:2!important;width:34px!important;min-width:34px!important;height:46px!important;padding:0!important}#baseShiftGrid .v18-field input[type=time]{display:block!important;width:100%!important;min-width:0!important;max-width:100%!important;height:46px!important;padding:0 8px!important;box-sizing:border-box!important;font-size:16px!important}#baseShiftGrid .v18-work{width:100%!important;max-width:100%!important;overflow:hidden!important}#baseShiftGrid .v18-works{width:100%!important;min-width:0!important;max-width:100%!important}#baseShiftGrid .v18-addwork{width:100%!important;max-width:100%!important}}</style>'''
+          if marker not in s:
+              s=s.replace('</body>',css+'</body>',1)
+          else:
+              a=s.index('<style id="'+marker+'">')
+              b=s.index('</style>',a)+8
+              s=s[:a]+css+s[b:]
+          p.write_text(s)
           PY
       - name: Commit
         run: |
           git config user.name 'github-actions[bot]'
           git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
           git add index.html
-          git diff --cached --quiet || git commit -m 'Load mobile basic shift layout fix'
+          git diff --cached --quiet || git commit -m 'Force final iPhone basic shift layout'
           git push
