@@ -206,6 +206,53 @@ input[type=time],input[type=date],input[type=month]{min-width:0;width:100%;box-s
  #basicshift .card{overflow:visible!important}
 }
 </style>
+
+<style id="v16-smart-basicshift">
+@media(max-width:700px){
+ #basicshift>.top .muted{font-size:13px!important;line-height:1.45}
+ #basicshift .card{padding:14px!important}
+ #basicshift .card>.top{gap:6px!important}
+ #basicshift .card>.top h2{font-size:18px!important}
+ #basicshift .card>.top .muted{font-size:12px!important}
+ #basicshift .tablewrap{margin-top:8px!important}
+ #baseShiftGrid .weekgrid{
+   display:grid!important;grid-template-columns:1fr 1fr!important;
+   gap:8px!important;width:100%!important
+ }
+ #baseShiftGrid .weekhead{display:none!important}
+ #baseShiftGrid .weekgrid>b{
+   grid-column:1/-1!important;font-size:18px!important;padding:14px 2px 4px!important;
+   margin:4px 0 0!important;border-top:1px solid #e9eef4!important
+ }
+ #baseShiftGrid .weekgrid>b:first-of-type{border-top:0!important;padding-top:4px!important}
+ #baseShiftGrid .mobile-field-label{display:none!important}
+ #baseShiftGrid .weekgrid>select,
+ #baseShiftGrid .weekgrid>input{
+   grid-column:auto!important;width:100%!important;height:44px!important;
+   margin:0!important;border-radius:10px!important;padding:0 10px!important;
+   font-size:15px!important;background:#f4f6f9!important
+ }
+ #baseShiftGrid .weekgrid>select[data-k="on"]{grid-column:1/-1!important}
+ #baseShiftGrid .weekgrid>input[data-k="start"]{grid-column:1!important}
+ #baseShiftGrid .weekgrid>input[data-k="end"]{grid-column:2!important}
+ #baseShiftGrid .weekgrid>input[data-k="b1s"]{grid-column:1!important}
+ #baseShiftGrid .weekgrid>input[data-k="b1e"]{grid-column:2!important}
+ #baseShiftGrid .weekgrid>input[data-k="b2s"]{grid-column:1!important}
+ #baseShiftGrid .weekgrid>input[data-k="b2e"]{grid-column:2!important}
+ #baseShiftGrid .smart-label{
+   font-size:11px;font-weight:700;color:#6c7d92;margin:1px 2px -4px
+ }
+ #baseShiftGrid .smart-label.full{grid-column:1/-1!important}
+ #baseShiftGrid .smart-label.left{grid-column:1!important}
+ #baseShiftGrid .smart-label.right{grid-column:2!important}
+ #baseShiftGrid .day-off-note{
+   grid-column:1/-1;background:#f7f9fb;color:#8491a3;border-radius:9px;
+   padding:8px 10px;font-size:12px
+ }
+ #basicshift .toolbar{margin-top:12px!important;gap:8px!important}
+ #saveBaseShift,#goShiftAfterBase{min-height:46px!important}
+}
+</style>
 </head><body><div class='app'><aside class='side'><div class='brand'>▣ シフト＆給与管理</div><div class='nav'><button data-page='dashboard'>ホーム</button><button data-page='dash'>ダッシュボード</button><button data-page='employees'>従業員管理</button><button data-page='basicshift'>基本シフト設定</button><button data-page='shifts'>シフト管理</button><button class='active' data-page='daily'>日別勤務</button><button data-page='payroll'>給与集計</button></div></aside><main class='main'>
 
 <section id="dashboard" class="page">
@@ -407,6 +454,31 @@ if ('serviceWorker' in navigator && (location.protocol === 'https:' || location.
  document.addEventListener('change',e=>{if(e.target&&e.target.id==='baseEmp')setTimeout(mobileLabels,0)});
  window.addEventListener('resize',()=>setTimeout(mobileLabels,50));
  setTimeout(mobileLabels,200);
+})();
+</script>
+
+<script id="v16-smart-basicshift-js">
+(function(){
+ function decorate(){
+  if(!matchMedia('(max-width:700px)').matches)return;
+  const g=document.querySelector('#baseShiftGrid .weekgrid'); if(!g)return;
+  g.querySelectorAll('.smart-label,.day-off-note').forEach(x=>x.remove());
+  g.querySelectorAll('.mobile-field-label').forEach(x=>x.style.display='none');
+  const map={
+   on:['勤務','full'],start:['出勤','left'],end:['退勤','right'],
+   b1s:['休憩① 開始','left'],b1e:['休憩① 終了','right'],
+   b2s:['休憩② 開始','left'],b2e:['休憩② 終了','right']
+  };
+  g.querySelectorAll('[data-d][data-k]').forEach(el=>{
+    const [txt,cl]=map[el.dataset.k]||['','left'];
+    const lab=document.createElement('div');lab.className='smart-label '+cl;lab.textContent=txt;
+    g.insertBefore(lab,el);
+  });
+ }
+ const old=window.renderBaseShift;
+ if(typeof old==='function')window.renderBaseShift=function(){old.apply(this,arguments);setTimeout(decorate,0)};
+ document.addEventListener('change',e=>{if(e.target.closest('#baseShiftGrid')||e.target.id==='baseEmp')setTimeout(decorate,0)});
+ setTimeout(decorate,200);
 })();
 </script>
 </body></html>
