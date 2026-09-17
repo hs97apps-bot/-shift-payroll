@@ -10,17 +10,20 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - name: Add night premium calculation
+      - name: Show and calculate night premium
         run: |
           python3 - <<'PY'
           from pathlib import Path
           p=Path('index.html'); s=p.read_text()
-          block=r'''<style id="night-premium-v26-style">.v26-night{font-size:12px;color:#5f6b7a;margin-top:5px}.v26-night b{color:#1d4f91}</style><script id="night-premium-v26">(()=>{function m(t){if(!t)return null;const a=t.split(':').map(Number);return a[0]*60+a[1]}function overlap(a,b,c,d){return Math.max(0,Math.min(b,d)-Math.max(a,c))}function nightMinutes(start,end,breaks=[]){let a=m(start),b=m(end);if(a==null||b==null)return 0;if(b<=a)b+=1440;let n=overlap(a,b,1320,1740)+overlap(a,b,-120,300);for(const br of breaks){let x=m(br.start),y=m(br.end);if(x==null||y==null)continue;if(y<=x)y+=1440;if(x<a&&a>=1320)x+=1440;if(y<a&&a>=1320)y+=1440;n-=overlap(x,y,1320,1740)+overlap(x,y,-120,300)}return Math.max(0,n)}function calcRow(r){const empId=r.empId||r.employeeId||r.emp;const e=(typeof db!=='undefined'&&db.employees||[]).find(x=>String(x.id)===String(empId));if(!e)return {min:0,premium:0};const bs=r.breaks||[];const min=nightMinutes(r.start||r.startTime,r.end||r.endTime,bs);const wage=Number(e.wage||e.hourlyWage||e.hourly||0);return {min,premium:Math.round(wage*.25*min/60)}}window.nightPremiumCalc={nightMinutes,calcRow};const oldSave=window.saveDB;function enhance(){if(typeof db==='undefined'||!db.days)return;Object.values(db.days).forEach(v=>{const rows=Array.isArray(v)?v:(v&&v.rows)||[];rows.forEach(r=>{const z=calcRow(r);r.nightMinutes=z.min;r.nightPremium=z.premium})})}document.addEventListener('change',e=>{if(e.target&&e.target.matches('input[type="time"]'))setTimeout(enhance,0)},true);document.addEventListener('click',e=>{if(e.target&&/保存|登録|更新/.test(e.target.textContent||''))setTimeout(()=>{enhance();try{localStorage.setItem('shiftPayrollMockV2',JSON.stringify(db))}catch(_){}},50)},true);enhance()})();</script>'''
-          a=s.find('<style id="night-premium-v26-style">')
-          if a>=0:
-            b=s.find('</script>',a)+9; s=s[:a]+block+s[b:]
-          else:
-            s=s.replace('</body>',block+'</body>',1)
+          block=r'''<style id="night-premium-v27-style">.night-val{font-weight:800;color:#1d4f91}.night-note{font-size:11px;color:#66758a}</style><script id="night-premium-v27">(()=>{const mm=t=>{if(!t)return null;let[a,b]=t.split(':').map(Number);return a*60+b},ov=(a,b,c,d)=>Math.max(0,Math.min(b,d)-Math.max(a,c));function brs(r){return [[r.b1s,r.b1e],[r.b2s,r.b2e]].filter(x=>x[0]&&x[1])}function nightMin(r){let a=mm(r.start),b=mm(r.end);if(a==null||b==null)return 0;if(b<=a)b+=1440;let n=ov(a,b,1320,1740)+ov(a,b,-120,300);for(const q of brs(r)){let x=mm(q[0]),y=mm(q[1]);if(y<=x)y+=1440;if(a>=1320&&x<a){x+=1440;y+=1440}n-=ov(x,y,1320,1740)+ov(x,y,-120,300)}return Math.max(0,n)}function prem(r){return Math.round((+r.rate||0)*.25*nightMin(r)/60)}function fmt(m){return Math.floor(m/60)+':'+String(m%60).padStart(2,'0')}window.nightMin=nightMin;window.nightPremium=prem;
+function daily(){document.querySelectorAll('#dailyRows tr').forEach((tr,i)=>{let r=(db.days[workDate.value]||[])[i];if(!r)return;let cells=tr.children;if(cells.length<11)return;let old=tr.querySelector('.night-daily');if(old)old.remove();let td=document.createElement('td');td.className='night-daily';td.innerHTML='<span class="night-val">'+fmt(nightMin(r))+'</span><div class="night-note">+'+yen(prem(r))+'</div>';tr.insertBefore(td,cells[cells.length-2]);});let hr=document.querySelector('#daily table thead tr');if(hr&&!hr.querySelector('.night-head')){let th=document.createElement('th');th.className='night-head';th.textContent='深夜時間 / 割増';hr.insertBefore(th,hr.children[hr.children.length-1])}}
+function payroll(){let month=payMonth&&payMonth.value;if(!month)return;document.querySelectorAll('#payRows tr').forEach(tr=>{let empName=tr.children[0]?.textContent;let e=db.employees.find(x=>x.name===empName);if(!e)return;let rows=[];Object.entries(db.days).forEach(([d,rs])=>{if(d.startsWith(month))rows.push(...rs.filter(r=>r.empId==e.id))});let nm=rows.reduce((s,r)=>s+nightMin(r),0),np=rows.reduce((s,r)=>s+prem(r),0);let old=tr.querySelector('.night-pay');if(old)old.remove();let td=document.createElement('td');td.className='night-pay';td.innerHTML='<span class="night-val">'+fmt(nm)+'</span><div class="night-note">'+yen(np)+'</div>';tr.insertBefore(td,tr.children[4])});let hr=document.querySelector('#payroll table thead tr');if(hr&&!hr.querySelector('.night-pay-head')){let th=document.createElement('th');th.className='night-pay-head';th.textContent='深夜時間 / 深夜割増';hr.insertBefore(th,hr.children[4])}}
+const rd=window.renderDaily;window.renderDaily=function(){let x=rd.apply(this,arguments);setTimeout(daily,0);return x};const rp=window.renderPayroll;if(typeof rp==='function')window.renderPayroll=function(){let x=rp.apply(this,arguments);setTimeout(payroll,0);return x};document.addEventListener('click',()=>setTimeout(()=>{daily();payroll()},50));setTimeout(()=>{daily();payroll()},500)})();</script>'''
+          for marker in ['night-premium-v27-style']:
+            a=s.find('<style id="'+marker+'">')
+            if a>=0:
+              b=s.find('</script>',a)+9; s=s[:a]+s[b:]
+          s=s.replace('</body>',block+'</body>',1)
           p.write_text(s)
           PY
       - name: Commit
@@ -28,5 +31,5 @@ jobs:
           git config user.name 'github-actions[bot]'
           git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
           git add index.html
-          git diff --cached --quiet || git commit -m 'Add automatic night premium calculation'
+          git diff --cached --quiet || git commit -m 'Display night premium in daily and payroll views'
           git push
