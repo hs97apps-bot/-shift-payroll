@@ -253,6 +253,61 @@ input[type=time],input[type=date],input[type=month]{min-width:0;width:100%;box-s
  #saveBaseShift,#goShiftAfterBase{min-height:46px!important}
 }
 </style>
+
+<style id="v17-basicshift-clean">
+@media(max-width:700px){
+ #basicshift .card{padding:14px!important;overflow:visible!important}
+ #baseShiftGrid,#baseShiftGrid .weekgrid{
+   width:100%!important;max-width:100%!important;min-width:0!important;overflow:visible!important
+ }
+ #baseShiftGrid .weekgrid{
+   display:grid!important;
+   grid-template-columns:76px minmax(0,1fr) 76px minmax(0,1fr)!important;
+   gap:8px!important;align-items:center!important
+ }
+ #baseShiftGrid .weekhead,
+ #baseShiftGrid .mobile-field-label,
+ #baseShiftGrid .smart-label{display:none!important}
+
+ #baseShiftGrid .weekgrid>b{
+   grid-column:1/-1!important;
+   display:block!important;width:100%!important;
+   font-size:20px!important;line-height:1.2!important;
+   padding:16px 2px 8px!important;margin:8px 0 0!important;
+   border-top:1px solid #e4eaf1!important
+ }
+ #baseShiftGrid .weekgrid>b:first-of-type{border-top:0!important;margin-top:0!important}
+
+ #baseShiftGrid .weekgrid>[data-k]{
+   width:100%!important;max-width:100%!important;min-width:0!important;
+   height:44px!important;margin:0!important;border-radius:10px!important;
+   font-size:16px!important;padding:0 8px!important
+ }
+
+ #baseShiftGrid .weekgrid>[data-k="on"]{grid-column:2/-1!important}
+ #baseShiftGrid .weekgrid>[data-k="start"]{grid-column:2!important}
+ #baseShiftGrid .weekgrid>[data-k="end"]{grid-column:4!important}
+ #baseShiftGrid .weekgrid>[data-k="b1s"]{grid-column:2!important}
+ #baseShiftGrid .weekgrid>[data-k="b1e"]{grid-column:4!important}
+ #baseShiftGrid .weekgrid>[data-k="b2s"]{grid-column:2!important}
+ #baseShiftGrid .weekgrid>[data-k="b2e"]{grid-column:4!important}
+
+ #baseShiftGrid .v17-label{
+   font-size:12px!important;font-weight:700!important;color:#65758b!important;
+   white-space:nowrap!important
+ }
+ #baseShiftGrid .v17-on{grid-column:1!important}
+ #baseShiftGrid .v17-start{grid-column:1!important}
+ #baseShiftGrid .v17-end{grid-column:3!important}
+ #baseShiftGrid .v17-b1s{grid-column:1!important}
+ #baseShiftGrid .v17-b1e{grid-column:3!important}
+ #baseShiftGrid .v17-b2s{grid-column:1!important}
+ #baseShiftGrid .v17-b2e{grid-column:3!important}
+
+ #basicshift .toolbar{display:grid!important;grid-template-columns:1fr!important;gap:8px!important}
+ #basicshift .toolbar .btn{width:100%!important}
+}
+</style>
 </head><body><div class='app'><aside class='side'><div class='brand'>▣ シフト＆給与管理</div><div class='nav'><button data-page='dashboard'>ホーム</button><button data-page='dash'>ダッシュボード</button><button data-page='employees'>従業員管理</button><button data-page='basicshift'>基本シフト設定</button><button data-page='shifts'>シフト管理</button><button class='active' data-page='daily'>日別勤務</button><button data-page='payroll'>給与集計</button></div></aside><main class='main'>
 
 <section id="dashboard" class="page">
@@ -479,6 +534,147 @@ if ('serviceWorker' in navigator && (location.protocol === 'https:' || location.
  if(typeof old==='function')window.renderBaseShift=function(){old.apply(this,arguments);setTimeout(decorate,0)};
  document.addEventListener('change',e=>{if(e.target.closest('#baseShiftGrid')||e.target.id==='baseEmp')setTimeout(decorate,0)});
  setTimeout(decorate,200);
+})();
+</script>
+
+<script id="v17-basicshift-clean-js">
+(function(){
+ const names={on:'勤務',start:'出勤',end:'退勤',b1s:'休憩①',b1e:'終了',b2s:'休憩②',b2e:'終了'};
+ function fix(){
+   if(!matchMedia('(max-width:700px)').matches)return;
+   const g=document.querySelector('#baseShiftGrid .weekgrid'); if(!g)return;
+   g.querySelectorAll('.v17-label').forEach(x=>x.remove());
+   g.querySelectorAll('[data-d][data-k]').forEach(el=>{
+     const k=el.dataset.k, lab=document.createElement('div');
+     lab.className='v17-label v17-'+k; lab.textContent=names[k]||k;
+     g.insertBefore(lab,el);
+   });
+ }
+ const old=window.renderBaseShift;
+ if(typeof old==='function')window.renderBaseShift=function(){old.apply(this,arguments);setTimeout(fix,0)};
+ document.addEventListener('change',e=>{if(e.target.id==='baseEmp')setTimeout(fix,0)});
+ setTimeout(fix,200);
+})();
+</script>
+
+<style id="v18-basicshift-ui">
+#baseShiftGrid .v18-day{border-top:1px solid #e5ebf2;padding:14px 0}
+#baseShiftGrid .v18-day:first-child{border-top:0}
+#baseShiftGrid .v18-dayhead{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:10px}
+#baseShiftGrid .v18-dayname{font-size:19px;font-weight:800}
+#baseShiftGrid .v18-work{background:#f7f9fc;border:1px solid #e3e9f1;border-radius:13px;padding:11px;margin:8px 0}
+#baseShiftGrid .v18-workhead{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px}
+#baseShiftGrid .v18-worktitle{font-weight:800;font-size:14px}
+#baseShiftGrid .v18-row{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:8px}
+#baseShiftGrid .v18-field label{display:block;font-size:11px;font-weight:700;color:#6b7b90;margin:0 0 4px 2px}
+#baseShiftGrid .v18-field input{width:100%;height:42px;border-radius:9px}
+#baseShiftGrid .v18-break{display:grid;grid-template-columns:1fr auto 1fr auto;gap:6px;align-items:end;margin-top:8px}
+#baseShiftGrid .v18-break .v18-field{min-width:0}
+#baseShiftGrid .v18-break .sep{padding-bottom:11px;color:#8290a2}
+#baseShiftGrid .v18-mini{border:0;background:transparent;color:#1671dc;font-weight:700;padding:7px 2px;min-height:36px}
+#baseShiftGrid .v18-delete{border:0;background:transparent;color:#b34b4b;font-size:12px;padding:7px}
+#baseShiftGrid .v18-addwork{width:100%;border:1px dashed #b9c9dc;background:#fff;color:#176fd3;border-radius:10px;padding:10px;font-weight:700;margin-top:7px}
+#baseShiftGrid .v18-off{display:flex;align-items:center;gap:7px;font-size:13px}
+#baseShiftGrid .v18-off input{width:20px;height:20px}
+@media(max-width:700px){
+ #baseShiftGrid .v18-row{grid-template-columns:1fr 1fr!important}
+ #baseShiftGrid .v18-break{grid-template-columns:minmax(0,1fr) 12px minmax(0,1fr) 30px!important}
+ #baseShiftGrid .v18-work{padding:10px}
+}
+</style>
+<script id="v18-basicshift-js">
+(function(){
+ const DAYS=['日','月','火','水','木','金','土'];
+ function emp(){
+   const id=document.getElementById('baseEmp')?.value;
+   return (window.state?.employees||[]).find(e=>String(e.id)===String(id));
+ }
+ function normalize(e,d){
+   if(e?.basicShiftBlocks?.[d]) return JSON.parse(JSON.stringify(e.basicShiftBlocks[d]));
+   const b=e?.basicShift?.[d]||{};
+   if(b.working===false || b.on===false) return {off:true,works:[]};
+   const breaks=[];
+   if(b.b1s||b.b1e) breaks.push({start:b.b1s||'',end:b.b1e||''});
+   if(b.b2s||b.b2e) breaks.push({start:b.b2s||'',end:b.b2e||''});
+   return {off:false,works:[{start:b.start||'10:00',end:b.end||'18:00',breaks:breaks.length?breaks:[{start:'12:00',end:'13:00'}]}]};
+ }
+ let draft={};
+ function esc(s){return String(s??'').replace(/"/g,'&quot;')}
+ function renderV18(){
+   const root=document.getElementById('baseShiftGrid'), e=emp(); if(!root)return;
+   if(!e){root.innerHTML='<div class="muted">従業員を登録してください。</div>';return}
+   draft={}; for(let d=0;d<7;d++) draft[d]=normalize(e,d);
+   draw();
+ }
+ function draw(){
+   const root=document.getElementById('baseShiftGrid'); if(!root)return;
+   root.innerHTML=DAYS.map((day,d)=>{
+     const x=draft[d]||{off:true,works:[]};
+     const works=(x.works||[]).map((w,wi)=>`
+       <div class="v18-work">
+        <div class="v18-workhead"><span class="v18-worktitle">勤務${x.works.length>1?' '+(wi+1):''}</span>${x.works.length>1?`<button class="v18-delete" data-act="delwork" data-d="${d}" data-w="${wi}">勤務を削除</button>`:''}</div>
+        <div class="v18-row">
+         <div class="v18-field"><label>出勤</label><input type="time" value="${esc(w.start)}" data-act="time" data-k="start" data-d="${d}" data-w="${wi}"></div>
+         <div class="v18-field"><label>退勤</label><input type="time" value="${esc(w.end)}" data-act="time" data-k="end" data-d="${d}" data-w="${wi}"></div>
+        </div>
+        ${(w.breaks||[]).map((b,bi)=>`
+         <div class="v18-break">
+          <div class="v18-field"><label>休憩${bi+1} 開始</label><input type="time" value="${esc(b.start)}" data-act="breaktime" data-k="start" data-d="${d}" data-w="${wi}" data-b="${bi}"></div>
+          <span class="sep">〜</span>
+          <div class="v18-field"><label>終了</label><input type="time" value="${esc(b.end)}" data-act="breaktime" data-k="end" data-d="${d}" data-w="${wi}" data-b="${bi}"></div>
+          <button class="v18-delete" data-act="delbreak" data-d="${d}" data-w="${wi}" data-b="${bi}">×</button>
+         </div>`).join('')}
+        <button class="v18-mini" data-act="addbreak" data-d="${d}" data-w="${wi}">＋ 休憩を追加</button>
+       </div>`).join('');
+     return `<div class="v18-day">
+       <div class="v18-dayhead"><span class="v18-dayname">${day}曜日</span><label class="v18-off"><input type="checkbox" data-act="off" data-d="${d}" ${x.off?'checked':''}>休み</label></div>
+       <div class="v18-works" ${x.off?'style="display:none"':''}>${works}<button class="v18-addwork" data-act="addwork" data-d="${d}">＋ 勤務を追加</button></div>
+     </div>`;
+   }).join('');
+ }
+ document.addEventListener('input',e=>{
+   const a=e.target.dataset?.act;if(!a)return;
+   const d=+e.target.dataset.d,w=+e.target.dataset.w,b=+e.target.dataset.b,k=e.target.dataset.k;
+   if(a==='time')draft[d].works[w][k]=e.target.value;
+   if(a==='breaktime')draft[d].works[w].breaks[b][k]=e.target.value;
+ });
+ document.addEventListener('change',e=>{
+   if(e.target.id==='baseEmp'){renderV18();return}
+   if(e.target.dataset?.act==='off'){
+     const d=+e.target.dataset.d;draft[d].off=e.target.checked;
+     if(!draft[d].works.length)draft[d].works=[{start:'10:00',end:'18:00',breaks:[{start:'12:00',end:'13:00'}]}];
+     draw();
+   }
+ });
+ document.addEventListener('click',e=>{
+   const b=e.target.closest('[data-act]');if(!b||b.tagName==='INPUT')return;
+   const a=b.dataset.act,d=+b.dataset.d,w=+b.dataset.w,bi=+b.dataset.b;
+   if(a==='addwork'){draft[d].off=false;draft[d].works.push({start:'10:00',end:'18:00',breaks:[]});draw()}
+   if(a==='delwork'){draft[d].works.splice(w,1);if(!draft[d].works.length)draft[d].off=true;draw()}
+   if(a==='addbreak'){draft[d].works[w].breaks.push({start:'12:00',end:'13:00'});draw()}
+   if(a==='delbreak'){draft[d].works[w].breaks.splice(bi,1);draw()}
+ });
+ function saveV18(){
+   const e=emp();if(!e)return;
+   e.basicShiftBlocks=JSON.parse(JSON.stringify(draft));
+   e.basicShift=e.basicShift||{};
+   for(let d=0;d<7;d++){
+     const x=draft[d],w=x.works?.[0],bs=w?.breaks||[];
+     e.basicShift[d]={
+       working:!x.off,start:w?.start||'',end:w?.end||'',
+       b1s:bs[0]?.start||'',b1e:bs[0]?.end||'',b2s:bs[1]?.start||'',b2e:bs[1]?.end||''
+     };
+   }
+   if(typeof window.saveState==='function')window.saveState();
+   else localStorage.setItem('shiftPayrollState',JSON.stringify(window.state||{}));
+   alert('基本シフトを保存しました');
+ }
+ window.renderBaseShift=renderV18;
+ setTimeout(()=>{
+   const save=document.getElementById('saveBaseShift');
+   if(save){const n=save.cloneNode(true);save.parentNode.replaceChild(n,save);n.addEventListener('click',saveV18)}
+   renderV18();
+ },250);
 })();
 </script>
 </body></html>
