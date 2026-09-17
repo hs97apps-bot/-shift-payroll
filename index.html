@@ -775,4 +775,72 @@ if ('serviceWorker' in navigator && (location.protocol === 'https:' || location.
   setTimeout(rebuild,700);
 })();
 </script>
+
+<script id="v20-direct-db-fix">
+(function(){
+  function clone(x){return JSON.parse(JSON.stringify(x))}
+  function norm(e,d){
+    if(e.basicShiftBlocks && e.basicShiftBlocks[d]) return clone(e.basicShiftBlocks[d]);
+    const b=(e.baseShift||{})[d]||{};
+    if(!b.on) return {off:true,works:[]};
+    const br=[];
+    if(b.b1s||b.b1e)br.push({start:b.b1s||'',end:b.b1e||''});
+    if(b.b2s||b.b2e)br.push({start:b.b2s||'',end:b.b2e||''});
+    return {off:false,works:[{start:b.start||'10:00',end:b.end||'18:00',breaks:br}]};
+  }
+  function render20(){
+    refreshEmpSelects();
+    const e=db.employees.find(x=>String(x.id)===String(baseEmp.value))||db.employees[0];
+    if(!e){baseShiftGrid.innerHTML='<div class="muted">従業員を登録してください</div>';return}
+    baseEmp.value=e.id;
+    window.v20draft={}; for(let d=0;d<7;d++)v20draft[d]=norm(e,d);
+    draw20();
+  }
+  function draw20(){
+    const D=['日','月','火','水','木','金','土'];
+    baseShiftGrid.innerHTML=D.map((day,d)=>{
+      const x=v20draft[d];
+      const ws=(x.works||[]).map((w,wi)=>`<div class="v18-work">
+        <div class="v18-workhead"><span class="v18-worktitle">勤務${x.works.length>1?' '+(wi+1):''}</span>${x.works.length>1?`<button type="button" class="v18-delete" data-v20="dw" data-d="${d}" data-w="${wi}">削除</button>`:''}</div>
+        <div class="v18-row"><div class="v18-field"><label>出勤</label><input type="time" value="${w.start||''}" data-v20="t" data-k="start" data-d="${d}" data-w="${wi}"></div><div class="v18-field"><label>退勤</label><input type="time" value="${w.end||''}" data-v20="t" data-k="end" data-d="${d}" data-w="${wi}"></div></div>
+        ${(w.breaks||[]).map((b,bi)=>`<div class="v18-break"><div class="v18-field"><label>休憩${bi+1} 開始</label><input type="time" value="${b.start||''}" data-v20="b" data-k="start" data-d="${d}" data-w="${wi}" data-b="${bi}"></div><span class="sep">〜</span><div class="v18-field"><label>終了</label><input type="time" value="${b.end||''}" data-v20="b" data-k="end" data-d="${d}" data-w="${wi}" data-b="${bi}"></div><button type="button" class="v18-delete" data-v20="db" data-d="${d}" data-w="${wi}" data-b="${bi}">×</button></div>`).join('')}
+        <button type="button" class="v18-mini" data-v20="ab" data-d="${d}" data-w="${wi}">＋ 休憩を追加</button>
+      </div>`).join('');
+      return `<div class="v18-day"><div class="v18-dayhead"><span class="v18-dayname">${day}曜日</span><label class="v18-off"><input type="checkbox" data-v20="off" data-d="${d}" ${x.off?'checked':''}>休み</label></div><div ${x.off?'style="display:none"':''}>${ws}<button type="button" class="v18-addwork" data-v20="aw" data-d="${d}">＋ 勤務を追加</button></div></div>`;
+    }).join('');
+  }
+  document.addEventListener('input',ev=>{
+    const el=ev.target,a=el.dataset?.v20;if(!a)return;
+    const d=+el.dataset.d,w=+el.dataset.w,b=+el.dataset.b,k=el.dataset.k;
+    if(a==='t')v20draft[d].works[w][k]=el.value;
+    if(a==='b')v20draft[d].works[w].breaks[b][k]=el.value;
+  },true);
+  document.addEventListener('change',ev=>{
+    const el=ev.target;
+    if(el.id==='baseEmp'){render20();return}
+    if(el.dataset?.v20==='off'){let x=v20draft[+el.dataset.d];x.off=el.checked;if(!x.works.length)x.works=[{start:'10:00',end:'18:00',breaks:[{start:'12:00',end:'13:00'}]}];draw20()}
+  },true);
+  document.addEventListener('click',ev=>{
+    const el=ev.target.closest('[data-v20]');if(!el||el.tagName==='INPUT')return;
+    const a=el.dataset.v20,d=+el.dataset.d,w=+el.dataset.w,b=+el.dataset.b,x=v20draft[d];
+    if(a==='aw'){x.off=false;x.works.push({start:'10:00',end:'18:00',breaks:[]})}
+    if(a==='dw'){x.works.splice(w,1);if(!x.works.length)x.off=true}
+    if(a==='ab')x.works[w].breaks.push({start:'12:00',end:'13:00'});
+    if(a==='db')x.works[w].breaks.splice(b,1);
+    draw20();
+  },true);
+  function save20(){
+    const e=db.employees.find(x=>String(x.id)===String(baseEmp.value));if(!e)return;
+    e.basicShiftBlocks=clone(v20draft);e.baseShift={};
+    for(let d=0;d<7;d++){const x=v20draft[d],w=x.works[0],bs=w?.breaks||[];e.baseShift[d]={on:!x.off,start:w?.start||'',end:w?.end||'',b1s:bs[0]?.start||'',b1e:bs[0]?.end||'',b2s:bs[1]?.start||'',b2e:bs[1]?.end||''}}
+    save();alert('基本シフトを保存しました');
+  }
+  setTimeout(()=>{
+    baseEmp.onchange=render20;
+    const old=saveBaseShift.cloneNode(true);saveBaseShift.replaceWith(old);window.saveBaseShift=old;old.onclick=save20;
+    window.renderBaseShift=render20;
+    render20();
+  },400);
+})();
+</script>
 </body></html>
