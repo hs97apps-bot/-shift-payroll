@@ -677,4 +677,102 @@ if ('serviceWorker' in navigator && (location.protocol === 'https:' || location.
  },250);
 })();
 </script>
+
+<script id="v19-basicshift-fix">
+(function(){
+  function parse(v){try{return JSON.parse(v)}catch(e){return null}}
+  function findEmployee(id){
+    const pools=[];
+    ['employees','emps','shiftPayrollEmployees','shiftPayrollState'].forEach(k=>{
+      const x=parse(localStorage.getItem(k));
+      if(Array.isArray(x)) pools.push(x);
+      else if(x && Array.isArray(x.employees)) pools.push(x.employees);
+    });
+    if(window.state && Array.isArray(window.state.employees)) pools.unshift(window.state.employees);
+    for(const p of pools){
+      const e=p.find(x=>String(x.id)===String(id));
+      if(e) return e;
+    }
+    return {id:id,name:document.querySelector('#baseEmp option:checked')?.textContent||'従業員'};
+  }
+
+  function rebuild(){
+    const sel=document.getElementById('baseEmp');
+    const root=document.getElementById('baseShiftGrid');
+    if(!sel||!root)return;
+    const id=sel.value;
+    if(!id){root.innerHTML='<div class="muted">従業員を選択してください。</div>';return}
+    const e=findEmployee(id);
+
+    const DAYS=['日','月','火','水','木','金','土'];
+    const getDay=d=>{
+      if(e.basicShiftBlocks && e.basicShiftBlocks[d]) return JSON.parse(JSON.stringify(e.basicShiftBlocks[d]));
+      const b=(e.basicShift&&e.basicShift[d])||{};
+      const working = b.working ?? b.on ?? false;
+      if(!working) return {off:true,works:[]};
+      const breaks=[];
+      if(b.b1s||b.b1e) breaks.push({start:b.b1s||'',end:b.b1e||''});
+      if(b.b2s||b.b2e) breaks.push({start:b.b2s||'',end:b.b2e||''});
+      return {off:false,works:[{start:b.start||'10:00',end:b.end||'18:00',breaks:breaks}]};
+    };
+    window.__v19draft={}; for(let d=0;d<7;d++) window.__v19draft[d]=getDay(d);
+    draw();
+  }
+
+  function draw(){
+    const root=document.getElementById('baseShiftGrid'), draft=window.__v19draft;if(!root||!draft)return;
+    root.innerHTML=['日','月','火','水','木','金','土'].map((day,d)=>{
+      const x=draft[d];
+      const works=(x.works||[]).map((w,wi)=>`
+       <div class="v18-work">
+        <div class="v18-workhead"><span class="v18-worktitle">勤務${x.works.length>1?' '+(wi+1):''}</span>${x.works.length>1?`<button type="button" class="v18-delete" data-v19="delwork" data-d="${d}" data-w="${wi}">勤務を削除</button>`:''}</div>
+        <div class="v18-row">
+         <div class="v18-field"><label>出勤</label><input type="time" value="${w.start||''}" data-v19="time" data-k="start" data-d="${d}" data-w="${wi}"></div>
+         <div class="v18-field"><label>退勤</label><input type="time" value="${w.end||''}" data-v19="time" data-k="end" data-d="${d}" data-w="${wi}"></div>
+        </div>
+        ${(w.breaks||[]).map((b,bi)=>`<div class="v18-break">
+          <div class="v18-field"><label>休憩${bi+1} 開始</label><input type="time" value="${b.start||''}" data-v19="break" data-k="start" data-d="${d}" data-w="${wi}" data-b="${bi}"></div>
+          <span class="sep">〜</span>
+          <div class="v18-field"><label>終了</label><input type="time" value="${b.end||''}" data-v19="break" data-k="end" data-d="${d}" data-w="${wi}" data-b="${bi}"></div>
+          <button type="button" class="v18-delete" data-v19="delbreak" data-d="${d}" data-w="${wi}" data-b="${bi}">×</button>
+        </div>`).join('')}
+        <button type="button" class="v18-mini" data-v19="addbreak" data-d="${d}" data-w="${wi}">＋ 休憩を追加</button>
+       </div>`).join('');
+      return `<div class="v18-day">
+       <div class="v18-dayhead"><span class="v18-dayname">${day}曜日</span><label class="v18-off"><input type="checkbox" data-v19="off" data-d="${d}" ${x.off?'checked':''}>休み</label></div>
+       <div ${x.off?'style="display:none"':''}>${works}<button type="button" class="v18-addwork" data-v19="addwork" data-d="${d}">＋ 勤務を追加</button></div>
+      </div>`;
+    }).join('');
+  }
+
+  document.addEventListener('input',function(ev){
+    const el=ev.target,a=el.dataset?.v19;if(!a||!window.__v19draft)return;
+    const d=+el.dataset.d,w=+el.dataset.w,b=+el.dataset.b,k=el.dataset.k;
+    if(a==='time')window.__v19draft[d].works[w][k]=el.value;
+    if(a==='break')window.__v19draft[d].works[w].breaks[b][k]=el.value;
+  },true);
+
+  document.addEventListener('change',function(ev){
+    const el=ev.target;
+    if(el.id==='baseEmp'){setTimeout(rebuild,0);return}
+    if(el.dataset?.v19==='off'){
+      const d=+el.dataset.d,x=window.__v19draft[d];x.off=el.checked;
+      if(!x.works.length)x.works=[{start:'10:00',end:'18:00',breaks:[{start:'12:00',end:'13:00'}]}];
+      draw();
+    }
+  },true);
+
+  document.addEventListener('click',function(ev){
+    const el=ev.target.closest('[data-v19]');if(!el||el.tagName==='INPUT')return;
+    const a=el.dataset.v19,d=+el.dataset.d,w=+el.dataset.w,b=+el.dataset.b,x=window.__v19draft[d];
+    if(a==='addwork'){x.off=false;x.works.push({start:'10:00',end:'18:00',breaks:[]});draw()}
+    if(a==='delwork'){x.works.splice(w,1);if(!x.works.length)x.off=true;draw()}
+    if(a==='addbreak'){x.works[w].breaks.push({start:'12:00',end:'13:00'});draw()}
+    if(a==='delbreak'){x.works[w].breaks.splice(b,1);draw()}
+  },true);
+
+  // Run after the app has populated #baseEmp.
+  setTimeout(rebuild,700);
+})();
+</script>
 </body></html>
